@@ -92,3 +92,45 @@ exports.deleteLesson = async (req, res, next) => {
     next(error);
   }
 };
+
+// Update module details
+exports.updateModule = async (req, res, next) => {
+  const { id } = req.params;
+  const { title, description, order } = req.body;
+
+  try {
+    const mod = await Module.findByIdAndUpdate(
+      id,
+      { title, description, order },
+      { new: true }
+    );
+
+    if (!mod) {
+      return res.status(404).json({ success: false, message: 'Module not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Module updated successfully', module: mod });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Delete module and its lessons
+exports.deleteModule = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const mod = await Module.findById(id);
+    if (!mod) {
+      return res.status(404).json({ success: false, message: 'Module not found' });
+    }
+
+    await Lesson.deleteMany({ module: id });
+    await Module.findByIdAndDelete(id);
+
+    res.status(200).json({ success: true, message: 'Module and its lessons deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
