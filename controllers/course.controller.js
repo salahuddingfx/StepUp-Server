@@ -56,7 +56,7 @@ exports.getCourseById = async (req, res, next) => {
 
 // Create a Course (Teacher or Admin)
 exports.createCourse = async (req, res, next) => {
-  const { title, description, category, price, thumbnail, level, duration } = req.body;
+  const { title, description, category, price, thumbnail, level, duration, introVideoUrl, outcomes } = req.body;
 
   try {
     const course = await Course.create({
@@ -67,6 +67,8 @@ exports.createCourse = async (req, res, next) => {
       thumbnail,
       level,
       duration,
+      introVideoUrl,
+      outcomes: outcomes || [],
       instructor: req.user.id
     });
 
@@ -83,7 +85,7 @@ exports.createCourse = async (req, res, next) => {
 // Update Course Details
 exports.updateCourse = async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, category, price, thumbnail, level, duration } = req.body;
+  const { title, description, category, price, thumbnail, level, duration, introVideoUrl, outcomes } = req.body;
 
   try {
     let course = await Course.findById(id);
@@ -98,7 +100,7 @@ exports.updateCourse = async (req, res, next) => {
 
     course = await Course.findByIdAndUpdate(
       id,
-      { title, description, category, price, thumbnail, level, duration },
+      { title, description, category, price, thumbnail, level, duration, introVideoUrl, outcomes },
       { new: true, runValidators: true }
     );
 
