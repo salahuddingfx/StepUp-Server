@@ -45,6 +45,14 @@ const CourseSchema = new mongoose.Schema({
   duration: {
     type: String, // e.g., "12 Weeks", "30 Hours"
     default: '8 Weeks'
+  },
+  introVideoUrl: {
+    type: String,
+    default: 'https://www.w3schools.com/html/mov_bbb.mp4'
+  },
+  outcomes: {
+    type: [String],
+    default: []
   }
 }, { timestamps: true });
 
