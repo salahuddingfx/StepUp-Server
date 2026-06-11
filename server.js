@@ -82,11 +82,22 @@ server.listen(PORT, () => {
 \x1b[31m                                                |_|           |_|    \x1b[0m
   
 \x1b[35m========================================================================\x1b[0m
-\x1b[32m  Developer:\x1b[0m  Salah uddin Kader
+\x1b[32m  Developer:\x1b[0m  Salah uddin Kader (salahuddingfx)
 \x1b[32m  Agency:\x1b[0m     Nextora Studio
 \x1b[32m  Status:\x1b[0m     Empowering Growth through Modern English Learning
 \x1b[32m  Server:\x1b[0m     Running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode
 \x1b[35m========================================================================\x1b[0m
   `;
-  console.log(asciiBanner);
+  
+  const lines = asciiBanner.split('\n');
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index < lines.length) {
+      console.log(lines[index]);
+      index++;
+    } else {
+      clearInterval(interval);
+    }
+  }, 45);
 });
+
