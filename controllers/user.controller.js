@@ -1,0 +1,105 @@
+const User = require('../models/User');
+const Student = require('../models/Student');
+const Teacher = require('../models/Teacher');
+
+// Get current profile
+exports.getProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    let details = {};
+
+    if (user.role === 'student') {
+      details = await Student.findOne({ user: user._id }).populate('coursesEnrolled.course');
+    } else if (user.role === 'teacher') {
+      details = await Teacher.findOne({ user: user._id }).populate('coursesAssigned');
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+      details
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update profile details
+exports.updateProfile = async (req, res, next) => {
+  const { name, avatar } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (name) user.name = name;
+    if (avatar) user.avatar = avatar;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Get all users
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find().sort('-createdAt');
+    res.status(200).json({ success: true, count: users.length, users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Toggle account status
+exports.toggleUserStatus = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User account has been ${user.isActive ? 'activated' : 'suspended'}`,
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Delete user
+exports.deleteUser = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (user.role === 'student') {
+      await Student.findOneAndDelete({ user: id });
+    } else if (user.role === 'teacher') {
+      await Teacher.findOneAndDelete({ user: id });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'User and linked profile deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
