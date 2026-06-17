@@ -16,6 +16,18 @@ const CertificateSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  studentName: {
+    type: String,
+    default: ''
+  },
+  courseTitle: {
+    type: String,
+    default: ''
+  },
+  grade: {
+    type: String,
+    default: 'A+'
+  },
   issueDate: {
     type: Date,
     default: Date.now
