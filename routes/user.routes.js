@@ -11,5 +11,6 @@ router.put('/profile', protect, controller.updateProfile);
 router.get('/', protect, authorizeAdmin, controller.getAllUsers);
 router.patch('/:id/toggle-status', protect, authorizeAdmin, controller.toggleUserStatus);
 router.delete('/:id', protect, authorizeAdmin, controller.deleteUser);
+router.patch('/:id/role', protect, authorizeAdmin, controller.updateUserRole);
 
 module.exports = router;
