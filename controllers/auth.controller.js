@@ -225,7 +225,7 @@ exports.refreshToken = async (req, res, next) => {
     // Set the new access token in cookie
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
-      expires: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'None' : 'Lax'
