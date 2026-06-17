@@ -51,6 +51,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=60'
   }
+}, { timestamps: true });
+
 UserSchema.pre('validate', function(next) {
   if (this.email && !this.username) {
     this.username = this.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(1000 + Math.random() * 9000);
