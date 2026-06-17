@@ -1,9 +1,25 @@
 const mongoose = require('mongoose');
 
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+};
+
 const CourseSchema = new mongoose.Schema({
   title: {
     type: String,
     required: [true, 'Please provide a course title'],
+    trim: true
+  },
+  slug: {
+    type: String,
+    unique: true,
+    lowercase: true,
     trim: true
   },
   description: {
@@ -54,6 +70,11 @@ const CourseSchema = new mongoose.Schema({
     type: [String],
     default: []
   }
-}, { timestamps: true });
+CourseSchema.pre('validate', function(next) {
+  if (this.title && !this.slug) {
+    this.slug = slugify(this.title);
+  }
+  next();
+});
 
 module.exports = mongoose.model('Course', CourseSchema);
