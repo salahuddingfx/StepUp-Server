@@ -1,17 +1,15 @@
 const mongoose = require('mongoose');
 
-const heroSlideSchema = new mongoose.Schema({
+const SlideSchema = new mongoose.Schema({
   badge: { type: String, default: '' },
   titleStart: { type: String, default: '' },
-const SlideSchema = new mongoose.Schema({
-  badge: { type: String, default: "" },
-  titleStart: { type: String, default: "" },
-  titleHighlight: { type: String, default: "" },
-  titleEnd: { type: String, default: "" },
-  desc: { type: String, default: "" },
-  ctaText: { type: String, default: "" },
-  ctaLink: { type: String, default: "" },
-  glowClass: { type: String, default: "bg-brand-red/5" }
+  titleHighlight: { type: String, default: '' },
+  titleEnd: { type: String, default: '' },
+  desc: { type: String, default: '' },
+  ctaText: { type: String, default: '' },
+  ctaLink: { type: String, default: '' },
+  glowClass: { type: String, default: 'bg-brand-red/5' },
+  image: { type: String, default: '' }
 });
 
 const SettingsSchema = new mongoose.Schema({
@@ -51,6 +49,10 @@ const SettingsSchema = new mongoose.Schema({
     type: [SlideSchema],
     default: [
       {
+        badge: 'Welcome To English StepUp',
+        titleStart: 'Master English With ',
+        titleHighlight: 'Confidence',
+        titleEnd: '',
         desc: 'Empowering Growth Through Modern English Learning. Join custom programs designed by industry specialists for children, academic candidates, and professionals.',
         ctaText: 'Get Started',
         ctaLink: '/programs',
