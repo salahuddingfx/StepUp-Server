@@ -41,7 +41,9 @@ exports.updateSettings = async (req, res, next) => {
       'introVideoUrl',
       'founderQuote',
       'founderName',
-      'founderRole'
+      'founderRole',
+      'bkashNumber',
+      'nagadNumber'
     ];
 
     allowedFields.forEach((field) => {
