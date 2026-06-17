@@ -5,10 +5,10 @@ const { initializeMockPayment, verifyMockPayment } = require('../services/paymen
 
 // Initialize payment
 exports.checkout = async (req, res, next) => {
-  const { courseId, amount, gateway } = req.body;
+  const { courseId, amount, gateway, senderNumber, couponCode } = req.body;
 
   try {
-    const session = await initializeMockPayment(req.user.id, courseId, amount, gateway);
+    const session = await initializeMockPayment(req.user.id, courseId, amount, gateway, senderNumber, couponCode);
     res.status(200).json(session);
   } catch (error) {
     next(error);
@@ -17,7 +17,7 @@ exports.checkout = async (req, res, next) => {
 
 // Verify payment hook
 exports.verifyPayment = async (req, res, next) => {
-  const { paymentId, transactionId, status } = req.body;
+  const { paymentId, transactionId, status, senderNumber } = req.body;
 
   try {
     const result = await verifyMockPayment(paymentId, transactionId, status);
