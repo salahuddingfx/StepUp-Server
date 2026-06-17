@@ -7,6 +7,11 @@ const StudentSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  studentId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   targetClass: {
     type: String,
     enum: ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'SSC Candidate', 'HSC Candidate', 'Spoken English Learner'],
@@ -38,5 +43,14 @@ const StudentSchema = new mongoose.Schema({
     status: { type: String, enum: ['present', 'absent'], default: 'present' }
   }]
 }, { timestamps: true });
+
+StudentSchema.pre('save', async function(next) {
+  if (this.isNew && !this.studentId) {
+    const year = new Date().getFullYear();
+    const count = await mongoose.model('Student').countDocuments();
+    this.studentId = `STU-${year}-${String(count + 1).padStart(5, '0')}`;
+  }
+  next();
+});
 
 module.exports = mongoose.model('Student', StudentSchema);
