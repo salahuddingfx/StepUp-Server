@@ -47,6 +47,33 @@ exports.getDashboard = async (req, res, next) => {
   }
 };
 
+// Get student ID card data
+exports.getIdCard = async (req, res, next) => {
+  try {
+    const student = await Student.findOne({ user: req.user.id }).populate('user', 'name email avatar role createdAt');
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student profile not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        studentId: student.studentId || `STU-${new Date().getFullYear()}-${String(student._id).slice(-5)}`,
+        name: student.user.name,
+        email: student.user.email,
+        avatar: student.user.avatar,
+        targetClass: student.targetClass,
+        role: student.user.role,
+        memberSince: student.user.createdAt,
+        coursesEnrolled: student.coursesEnrolled.length,
+        completedCourses: student.coursesEnrolled.filter(c => c.progress === 100).length
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Enroll in a Course (direct manual enrollment or post-payment trigger)
 exports.enrollInCourse = async (req, res, next) => {
   const { courseId } = req.body;
