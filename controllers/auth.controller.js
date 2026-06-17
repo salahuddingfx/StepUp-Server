@@ -8,12 +8,33 @@ const jwt = require('jsonwebtoken');
 
 // Register
 exports.register = async (req, res, next) => {
-  const { name, email, password, role, targetClass } = req.body;
+  const { name, email, username, password, role, targetClass } = req.body;
 
   try {
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+
+    if (username) {
+      const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+      if (!usernameRegex.test(username)) {
+        return res.status(400).json({ success: false, message: 'Username must be at least 3 characters and alphanumeric (letters, numbers, underscores only)' });
+      }
+      const usernameExists = await User.findOne({ username: username.toLowerCase() });
+      if (usernameExists) {
+        return res.status(400).json({ success: false, message: 'Username is already taken' });
+      }
+    }
+
+    const requestedRole = role || 'student';
+
+    if (requestedRole === 'teacher') {
+      const Settings = require('../models/Settings');
+      let settings = await Settings.findOne();
+      if (!settings || !settings.allowTeacherRegistration) {
+        return res.status(400).json({ success: false, message: 'Teacher registration is currently closed' });
+      }
     }
 
     const otpCode = generateOTP();
@@ -22,8 +43,9 @@ exports.register = async (req, res, next) => {
     user = await User.create({
       name,
       email,
+      username: username ? username.toLowerCase() : undefined,
       password,
-      role: role || 'student',
+      role: requestedRole,
       otp: {
         code: otpCode,
         expiresAt: otpExpires
