@@ -7,7 +7,7 @@ const initializeMockPayment = async (studentId, courseId, amount, gateway = 'bka
   let finalAmount = amount;
   let discountAmount = 0;
 
-  if (couponCode) {
+  if (couponCode && couponCode.trim()) {
     const Coupon = require('../models/Coupon');
     const coupon = await Coupon.findOne({ code: couponCode.toUpperCase().trim() });
     if (coupon && coupon.isActive && (!coupon.expiresAt || new Date() <= coupon.expiresAt) && (coupon.maxUses === 0 || coupon.usedCount < coupon.maxUses) && amount >= coupon.minAmount) {
