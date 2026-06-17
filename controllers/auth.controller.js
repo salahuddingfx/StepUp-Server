@@ -206,10 +206,10 @@ exports.resetPassword = async (req, res, next) => {
 
 // Refresh Token
 exports.refreshToken = async (req, res, next) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
   if (!refreshToken) {
-    return res.status(400).json({ success: false, message: 'Refresh token is required' });
+    return res.status(401).json({ success: false, message: 'Refresh token is required' });
   }
 
   try {
@@ -222,6 +222,16 @@ exports.refreshToken = async (req, res, next) => {
 
     const newAccessToken = generateAccessToken(user._id);
 
+    // Set the new access token in cookie
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      expires: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'None' : 'Lax'
+    };
+    res.cookie('token', newAccessToken, cookieOptions);
+
     res.status(200).json({
       success: true,
       accessToken: newAccessToken
@@ -233,6 +243,15 @@ exports.refreshToken = async (req, res, next) => {
 
 // Logout
 exports.logout = async (req, res, next) => {
-  res.clearCookie('token');
+  const isProduction = process.env.NODE_ENV === 'production';
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'None' : 'Lax'
+  };
+  
+  res.clearCookie('token', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
+  
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
