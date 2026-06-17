@@ -28,16 +28,16 @@ const sendTokenResponse = (user, statusCode, res) => {
     sameSite: isProduction ? 'None' : 'Lax'
   };
 
-  // Access token cookie (expires in 15 minutes)
+  // Access token cookie (expires in 1 day)
   res.cookie('token', accessToken, {
     ...cookieOptions,
-    expires: new Date(Date.now() + 15 * 60 * 1000)
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
   });
 
-  // Refresh token cookie (expires in 7 days)
+  // Refresh token cookie (expires in 30 days)
   res.cookie('refreshToken', refreshToken, {
     ...cookieOptions,
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
   });
 
   return res.status(statusCode).json({
