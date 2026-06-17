@@ -7,6 +7,7 @@ const authorizeStudent = require('../middlewares/student.middleware');
 
 router.post('/', protect, authorizeTeacher, controller.createQuiz);
 router.get('/:id', protect, controller.getQuizById);
+router.delete('/:id', protect, authorizeTeacher, controller.deleteQuiz);
 router.post('/submit', protect, authorizeStudent, controller.submitQuiz);
 
 module.exports = router;
