@@ -62,11 +62,12 @@ const verifyMockPayment = async (paymentId, transactionId, status = 'success') =
 
   if (status === 'success') {
     payment.status = 'completed';
+    payment.transactionId = transactionId || payment.transactionId;
     await payment.save();
 
     await Transaction.findOneAndUpdate(
-      { transactionId },
-      { status: 'success' }
+      { payment: payment._id },
+      { status: 'success', transactionId: transactionId || payment.transactionId }
     );
 
     return {
@@ -79,7 +80,7 @@ const verifyMockPayment = async (paymentId, transactionId, status = 'success') =
     await payment.save();
 
     await Transaction.findOneAndUpdate(
-      { transactionId },
+      { payment: payment._id },
       { status: 'failed' }
     );
 
