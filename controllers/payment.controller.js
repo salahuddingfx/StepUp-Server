@@ -73,3 +73,66 @@ exports.getTransactions = async (req, res, next) => {
     next(error);
   }
 };
+
+// Admin: Update Payment Status (Approve/Reject)
+exports.updatePaymentStatus = async (req, res, next) => {
+  const { id } = req.params;
+  const { status } = req.body; // completed, failed, pending
+
+  try {
+    const payment = await Payment.findById(id);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment record not found' });
+    }
+
+    payment.status = status;
+    await payment.save();
+
+    // If manually completed, enroll student in the course
+    if (status === 'completed') {
+      const student = await Student.findOne({ user: payment.student });
+      if (student) {
+        const alreadyEnrolled = student.coursesEnrolled.some(
+          c => c.course.toString() === payment.course.toString()
+        );
+        if (!alreadyEnrolled) {
+          student.coursesEnrolled.push({
+            course: payment.course,
+            progress: 0,
+            completedLessons: []
+          });
+          await student.save();
+        }
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Payment status updated to ${status}`,
+      payment
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Delete Payment Record
+exports.deletePayment = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const payment = await Payment.findById(id);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment record not found' });
+    }
+
+    await Payment.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Payment record deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
