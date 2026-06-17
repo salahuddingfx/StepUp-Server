@@ -25,18 +25,22 @@ exports.verifyPayment = async (req, res, next) => {
     // Automatically enroll student in course if payment succeeded
     if (result.success) {
       const student = await Student.findOne({ user: result.payment.student });
-      if (student) {
-        const alreadyEnrolled = student.coursesEnrolled.some(
-          c => c.course.toString() === result.payment.course.toString()
-        );
-        if (!alreadyEnrolled) {
-          student.coursesEnrolled.push({
-            course: result.payment.course,
-            progress: 0,
-            completedLessons: []
-          });
-          await student.save();
-        }
+      if (!student) {
+        return res.status(500).json({
+          success: false,
+          message: 'Payment completed but student profile not found. Please contact support.'
+        });
+      }
+      const alreadyEnrolled = student.coursesEnrolled.some(
+        c => c.course.toString() === result.payment.course.toString()
+      );
+      if (!alreadyEnrolled) {
+        student.coursesEnrolled.push({
+          course: result.payment.course,
+          progress: 0,
+          completedLessons: []
+        });
+        await student.save();
       }
     }
 
