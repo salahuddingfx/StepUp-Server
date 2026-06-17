@@ -28,6 +28,10 @@ const SettingsSchema = new mongoose.Schema({
   maintenanceMode: {
     type: Boolean,
     default: false
+  },
+  allowTeacherRegistration: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
