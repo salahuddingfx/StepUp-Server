@@ -102,3 +102,23 @@ exports.deleteQuiz = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get all quizzes (Teacher/Admin)
+exports.getQuizzes = async (req, res, next) => {
+  try {
+    const quizzes = await Quiz.find()
+      .populate({
+        path: 'lesson',
+        populate: {
+          path: 'module',
+          populate: {
+            path: 'course'
+          }
+        }
+      });
+
+    res.status(200).json({ success: true, count: quizzes.length, quizzes });
+  } catch (error) {
+    next(error);
+  }
+};
