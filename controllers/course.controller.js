@@ -1,6 +1,17 @@
 const Course = require('../models/Course');
 const Module = require('../models/Module');
 const Lesson = require('../models/Lesson');
+const mongoose = require('mongoose');
+
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+};
 
 // Get all courses (supports filters)
 exports.getCourses = async (req, res, next) => {
@@ -24,13 +35,15 @@ exports.getCourseById = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const course = await Course.findById(id).populate('instructor', 'name email avatar');
+    const isObjectId = mongoose.Types.ObjectId.isValid(id);
+    const query = isObjectId ? { _id: id } : { slug: id };
+    const course = await Course.findOne(query).populate('instructor', 'name email avatar');
     if (!course) {
       return res.status(404).json({ success: false, message: 'Course not found' });
     }
 
     // Fetch modules and lessons
-    const modules = await Module.find({ course: id }).sort('order');
+    const modules = await Module.find({ course: course._id }).sort('order');
     const structure = [];
 
     for (const mod of modules) {
@@ -98,9 +111,14 @@ exports.updateCourse = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Not authorized to modify this course' });
     }
 
+    const updates = { title, description, category, price, thumbnail, level, duration, introVideoUrl, outcomes };
+    if (title) {
+      updates.slug = slugify(title);
+    }
+
     course = await Course.findByIdAndUpdate(
       id,
-      { title, description, category, price, thumbnail, level, duration, introVideoUrl, outcomes },
+      updates,
       { new: true, runValidators: true }
     );
 
