@@ -10,5 +10,7 @@ router.get('/history', protect, controller.getPaymentHistory);
 
 // Admin transactions audit log
 router.get('/transactions', protect, authorizeAdmin, controller.getTransactions);
+router.put('/:id/status', protect, authorizeAdmin, controller.updatePaymentStatus);
+router.delete('/:id', protect, authorizeAdmin, controller.deletePayment);
 
 module.exports = router;
