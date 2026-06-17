@@ -45,6 +45,14 @@ const SettingsSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  bkashNumber: {
+    type: String,
+    default: ''
+  },
+  nagadNumber: {
+    type: String,
+    default: ''
+  },
   heroSlides: {
     type: [SlideSchema],
     default: [
