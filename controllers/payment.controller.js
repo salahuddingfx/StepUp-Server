@@ -20,6 +20,11 @@ exports.verifyPayment = async (req, res, next) => {
   const { paymentId, transactionId, status, senderNumber } = req.body;
 
   try {
+    // Save sender number if provided
+    if (senderNumber) {
+      await Payment.findByIdAndUpdate(paymentId, { senderNumber });
+    }
+
     const result = await verifyMockPayment(paymentId, transactionId, status);
     
     // Automatically enroll student in course if payment succeeded
