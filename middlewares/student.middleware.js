@@ -1,5 +1,5 @@
 const authorizeStudent = (req, res, next) => {
-  if (req.user && (req.user.role === 'student' || req.user.role === 'admin' || req.user.role === 'teacher')) {
+  if (req.user && (req.user.role === 'student' || req.user.role === 'admin' || req.user.role === 'teacher' || req.user.role === 'superadmin')) {
     next();
   } else {
     return res.status(403).json({
