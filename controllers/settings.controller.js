@@ -36,7 +36,12 @@ exports.updateSettings = async (req, res, next) => {
       'facebookUrl', 
       'youtubeUrl', 
       'maintenanceMode', 
-      'allowTeacherRegistration'
+      'allowTeacherRegistration',
+      'heroSlides',
+      'introVideoUrl',
+      'founderQuote',
+      'founderName',
+      'founderRole'
     ];
 
     allowedFields.forEach((field) => {
