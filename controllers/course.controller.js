@@ -43,17 +43,35 @@ exports.getCourseById = async (req, res, next) => {
     }
 
     // Fetch modules and lessons
+    const Module = require('../models/Module');
+    const Lesson = require('../models/Lesson');
+    const Quiz = require('../models/Quiz');
+    const Assignment = require('../models/Assignment');
+
     const modules = await Module.find({ course: course._id }).sort('order');
     const structure = [];
 
     for (const mod of modules) {
       const lessons = await Lesson.find({ module: mod._id }).sort('order');
+      
+      const lessonsWithResources = [];
+      for (const less of lessons) {
+        const quiz = await Quiz.findOne({ lesson: less._id });
+        const assignment = await Assignment.findOne({ lesson: less._id });
+        
+        lessonsWithResources.push({
+          ...less.toObject(),
+          quiz: quiz || null,
+          assignment: assignment || null
+        });
+      }
+
       structure.push({
         _id: mod._id,
         title: mod.title,
         description: mod.description,
         order: mod.order,
-        lessons
+        lessons: lessonsWithResources
       });
     }
 
