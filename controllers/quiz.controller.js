@@ -86,3 +86,19 @@ exports.submitQuiz = async (req, res, next) => {
     next(error);
   }
 };
+
+// Delete quiz (Teacher/Admin)
+exports.deleteQuiz = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const quiz = await Quiz.findByIdAndDelete(id);
+    if (!quiz) {
+      return res.status(404).json({ success: false, message: 'Quiz not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Quiz deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
