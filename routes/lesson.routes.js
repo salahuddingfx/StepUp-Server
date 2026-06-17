@@ -6,7 +6,9 @@ const authorizeTeacher = require('../middlewares/teacher.middleware');
 
 router.post('/module', protect, authorizeTeacher, controller.createModule);
 
-router.post('/', protect, authorizeTeacher, controller.createLesson);
+router.route('/')
+  .post(protect, authorizeTeacher, controller.createLesson)
+  .get(protect, authorizeTeacher, controller.getLessons);
 router.get('/:id', protect, controller.getLessonById);
 router.put('/:id', protect, authorizeTeacher, controller.updateLesson);
 router.delete('/:id', protect, authorizeTeacher, controller.deleteLesson);
