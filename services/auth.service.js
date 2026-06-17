@@ -21,19 +21,27 @@ const sendTokenResponse = (user, statusCode, res) => {
   const refreshToken = generateRefreshToken(user._id);
 
   // Configure cookie options
+  const isProduction = process.env.NODE_ENV === 'production';
   const cookieOptions = {
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Lax'
+    secure: isProduction,
+    sameSite: isProduction ? 'None' : 'Lax'
   };
 
-  res.cookie('token', accessToken, cookieOptions);
+  // Access token cookie (expires in 15 minutes)
+  res.cookie('token', accessToken, {
+    ...cookieOptions,
+    expires: new Date(Date.now() + 15 * 60 * 1000)
+  });
+
+  // Refresh token cookie (expires in 7 days)
+  res.cookie('refreshToken', refreshToken, {
+    ...cookieOptions,
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  });
 
   return res.status(statusCode).json({
     success: true,
-    accessToken,
-    refreshToken,
     user: {
       _id: user._id,
       name: user.name,
