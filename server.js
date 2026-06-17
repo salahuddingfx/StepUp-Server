@@ -57,6 +57,7 @@ app.use('/api/v1/notifications', require('./routes/notification.routes'));
 app.use('/api/v1/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/v1/upload', require('./routes/upload.routes'));
 app.use('/api/v1/settings', require('./routes/settings.routes'));
+app.use('/api/v1/coupons', require('./routes/coupon.routes'));
 
 // Basic Health Check Route
 app.get('/', (req, res) => {
