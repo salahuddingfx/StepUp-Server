@@ -134,3 +134,21 @@ exports.deleteModule = async (req, res, next) => {
   }
 };
 
+// Get all lessons (Teacher/Admin)
+exports.getLessons = async (req, res, next) => {
+  try {
+    const lessons = await Lesson.find()
+      .populate({
+        path: 'module',
+        populate: {
+          path: 'course'
+        }
+      })
+      .sort('-createdAt');
+
+    res.status(200).json({ success: true, count: lessons.length, lessons });
+  } catch (error) {
+    next(error);
+  }
+};
+
