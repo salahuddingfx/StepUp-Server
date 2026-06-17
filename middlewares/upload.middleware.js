@@ -19,7 +19,16 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = ['.png', '.jpg', '.jpeg', '.pdf', '.docx', '.mp4'];
+  const allowedExtensions = [
+    // Images
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
+    // Documents
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.zip', '.rar',
+    // Audio
+    '.mp3', '.wav', '.m4a', '.ogg',
+    // Video
+    '.mp4', '.mov', '.avi', '.mkv', '.webm'
+  ];
   const ext = path.extname(file.originalname).toLowerCase();
   
   if (allowedExtensions.includes(ext)) {
@@ -33,7 +42,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+    fileSize: 100 * 1024 * 1024 // 100MB limit
   }
 });
 
