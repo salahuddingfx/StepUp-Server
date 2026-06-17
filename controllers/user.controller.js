@@ -103,3 +103,52 @@ exports.deleteUser = async (req, res, next) => {
     next(error);
   }
 };
+
+// Admin: Update User Role (e.g. promote to teacher, demote to student)
+exports.updateUserRole = async (req, res, next) => {
+  const { id } = req.params;
+  const { role } = req.body; // admin, teacher, student
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const oldRole = user.role;
+    user.role = role;
+    await user.save();
+
+    // Sync profiles based on new role
+    if (role === 'teacher') {
+      const existingTeacher = await Teacher.findOne({ user: id });
+      if (!existingTeacher) {
+        await Teacher.create({
+          user: id,
+          expertise: ['General English']
+        });
+      }
+      await Student.findOneAndDelete({ user: id });
+    } else if (role === 'student') {
+      const existingStudent = await Student.findOne({ user: id });
+      if (!existingStudent) {
+        await Student.create({
+          user: id,
+          targetClass: 'Spoken English Learner'
+        });
+      }
+      await Teacher.findOneAndDelete({ user: id });
+    } else if (role === 'admin') {
+      await Student.findOneAndDelete({ user: id });
+      await Teacher.findOneAndDelete({ user: id });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `User role updated from ${oldRole} to ${role} successfully`,
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
