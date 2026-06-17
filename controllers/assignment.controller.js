@@ -130,3 +130,23 @@ exports.deleteAssignment = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get all assignments (Teacher/Admin)
+exports.getAssignments = async (req, res, next) => {
+  try {
+    const assignments = await Assignment.find()
+      .populate({
+        path: 'lesson',
+        populate: {
+          path: 'module',
+          populate: {
+            path: 'course'
+          }
+        }
+      });
+
+    res.status(200).json({ success: true, count: assignments.length, assignments });
+  } catch (error) {
+    next(error);
+  }
+};
