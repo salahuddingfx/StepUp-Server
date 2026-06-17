@@ -114,3 +114,19 @@ exports.getSubmissions = async (req, res, next) => {
     next(error);
   }
 };
+
+// Delete assignment (Teacher/Admin)
+exports.deleteAssignment = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const assignment = await Assignment.findByIdAndDelete(id);
+    if (!assignment) {
+      return res.status(404).json({ success: false, message: 'Assignment not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Assignment deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
