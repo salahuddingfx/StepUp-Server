@@ -6,6 +6,7 @@ const authorizeAdmin = require('../middlewares/admin.middleware');
 
 router.get('/profile', protect, controller.getProfile);
 router.put('/profile', protect, controller.updateProfile);
+router.put('/password', protect, controller.changePassword);
 
 // Admin-only user list and control
 router.get('/', protect, authorizeAdmin, controller.getAllUsers);
