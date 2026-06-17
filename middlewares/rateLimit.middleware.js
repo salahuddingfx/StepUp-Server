@@ -1,40 +1,47 @@
-const rateLimitMap = new Map();
+const rateLimit = (options = {}) => {
+  const windowMs = options.windowMs || 15 * 60 * 1000; // Default: 15 minutes
+  const max = options.max || 5; // Default: 5 requests
+  const message = options.message || 'Too many requests from this IP. Please try again after 15 minutes.';
 
-// Standard simple in-memory rate limiter to avoid extra heavy dependencies
-const rateLimiter = (options = {}) => {
-  const windowMs = options.windowMs || 15 * 60 * 1000; // default 15 mins
-  const max = options.max || 100; // default 100 requests per windowMs
+  const requests = new Map();
+
+  // Clean memory periodically to prevent memory leaks
+  setInterval(() => {
+    const now = Date.now();
+    for (const [ip, timestamps] of requests.entries()) {
+      const active = timestamps.filter(time => now - time < windowMs);
+      if (active.length === 0) {
+        requests.delete(ip);
+      } else {
+        requests.set(ip, active);
+      }
+    }
+  }, 10 * 60 * 1000); // Clean every 10 minutes
 
   return (req, res, next) => {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const now = Date.now();
 
-    if (!rateLimitMap.has(ip)) {
-      rateLimitMap.set(ip, {
-        resetTime: now + windowMs,
-        count: 1
-      });
-      return next();
+    if (!requests.has(ip)) {
+      requests.set(ip, []);
     }
 
-    const rateData = rateLimitMap.get(ip);
+    let timestamps = requests.get(ip);
+    
+    // Keep only timestamps within the window
+    timestamps = timestamps.filter(time => now - time < windowMs);
 
-    if (now > rateData.resetTime) {
-      rateData.resetTime = now + windowMs;
-      rateData.count = 1;
-      return next();
-    }
-
-    rateData.count++;
-    if (rateData.count > max) {
+    if (timestamps.length >= max) {
       return res.status(429).json({
         success: false,
-        message: 'Too many requests from this IP. Please try again later.'
+        message
       });
     }
 
+    timestamps.push(now);
+    requests.set(ip, timestamps);
     next();
   };
 };
 
-module.exports = rateLimiter;
+module.exports = rateLimit;
