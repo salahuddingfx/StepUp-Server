@@ -6,6 +6,7 @@ const authorizeStudent = require('../middlewares/student.middleware');
 const authorizeAdmin = require('../middlewares/admin.middleware');
 
 router.get('/dashboard', protect, authorizeStudent, controller.getDashboard);
+router.get('/id-card', protect, authorizeStudent, controller.getIdCard);
 router.post('/enroll', protect, authorizeStudent, controller.enrollInCourse);
 router.post('/progress', protect, authorizeStudent, controller.updateProgress);
 
