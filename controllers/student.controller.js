@@ -3,6 +3,7 @@ const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const Module = require('../models/Module');
 const Certificate = require('../models/Certificate');
+const { issueCertificate } = require('../services/certificate.service');
 
 // Get student dashboard statistics
 exports.getDashboard = async (req, res, next) => {
@@ -148,6 +149,15 @@ exports.updateProgress = async (req, res, next) => {
       }
 
       await student.save();
+
+      // Auto-issue certificate on 100% completion
+      if (courseRecord.progress >= 100) {
+        try {
+          await issueCertificate(req.user.id, courseId);
+        } catch (err) {
+          // silent - certificate may already exist
+        }
+      }
     }
 
     res.status(200).json({
