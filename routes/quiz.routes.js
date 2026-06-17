@@ -5,7 +5,10 @@ const { protect } = require('../middlewares/auth.middleware');
 const authorizeTeacher = require('../middlewares/teacher.middleware');
 const authorizeStudent = require('../middlewares/student.middleware');
 
-router.post('/', protect, authorizeTeacher, controller.createQuiz);
+router.route('/')
+  .post(protect, authorizeTeacher, controller.createQuiz)
+  .get(protect, authorizeTeacher, controller.getQuizzes);
+
 router.get('/:id', protect, controller.getQuizById);
 router.delete('/:id', protect, authorizeTeacher, controller.deleteQuiz);
 router.post('/submit', protect, authorizeStudent, controller.submitQuiz);
