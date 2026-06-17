@@ -26,18 +26,79 @@ exports.getProfile = async (req, res, next) => {
 
 // Update profile details
 exports.updateProfile = async (req, res, next) => {
-  const { name, avatar } = req.body;
+  const { name, avatar, email, username, targetClass } = req.body;
 
   try {
     const user = await User.findById(req.user.id);
+
     if (name) user.name = name;
     if (avatar) user.avatar = avatar;
+
+    if (email && email !== user.email) {
+      const existing = await User.findOne({ email: email.toLowerCase() });
+      if (existing) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+      }
+      user.email = email.toLowerCase();
+      user.isEmailVerified = false;
+    }
+
+    if (username && username !== user.username) {
+      const existing = await User.findOne({ username: username.toLowerCase() });
+      if (existing) {
+        return res.status(400).json({ success: false, message: 'Username already taken' });
+      }
+      user.username = username.toLowerCase();
+    }
+
     await user.save();
+
+    if (targetClass && user.role === 'student') {
+      const student = await Student.findOne({ user: user._id });
+      if (student) {
+        student.targetClass = targetClass;
+        await student.save();
+      }
+    }
+
+    const freshUser = await User.findById(user._id);
 
     res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
-      user
+      user: freshUser
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Change password
+exports.changePassword = async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, message: 'Both current and new password are required' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+  }
+
+  try {
+    const user = await User.findById(req.user.id).select('+password');
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully'
     });
   } catch (error) {
     next(error);
