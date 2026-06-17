@@ -27,6 +27,18 @@ const PaymentSchema = new mongoose.Schema({
   transactionId: {
     type: String,
     required: true
+  },
+  senderNumber: {
+    type: String,
+    default: ''
+  },
+  couponCode: {
+    type: String,
+    default: ''
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 
