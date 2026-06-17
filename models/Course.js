@@ -70,6 +70,8 @@ const CourseSchema = new mongoose.Schema({
     type: [String],
     default: []
   }
+}, { timestamps: true });
+
 CourseSchema.pre('validate', function(next) {
   if (this.title && !this.slug) {
     this.slug = slugify(this.title);
